@@ -112,7 +112,7 @@ NumPlay.register({
                 '<div class="range-box" id="G_hi">' + s.max + '</div>' +
             '</div>' +
             '<div class="input-bar">' +
-                '<input type="text" inputmode="numeric" pattern="[0-9]*" class="field center" id="G_inp" placeholder="?" onkeypress="if(event.key===\'Enter\')NumPlay.games.guessing.guess()">' +
+                '<input type="text" inputmode="tel" pattern="[0-9]*" class="field center" id="G_inp" placeholder="?" onkeypress="if(event.key===\'Enter\')NumPlay.games.guessing.guess()">' +
                 '<button class="btn" onclick="NumPlay.games.guessing.guess()">Tebak</button>' +
             '</div>' +
             '<div class="fb-card" id="G_fb"><div class="l1" id="G_l1"></div><div class="l2" id="G_l2"></div></div>' +
