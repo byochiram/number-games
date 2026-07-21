@@ -7,29 +7,127 @@ NumPlay.register({
     bg: '#fef2f2',
 
     state: {},
+    audioCtx: null,
+    musicTimer: null,
+    musicPlaying: false,
 
-    beep: function(freq, dur, vol) {
-        try {
-            var ctx = new (window.AudioContext || window.webkitAudioContext)();
-            var osc = ctx.createOscillator();
-            var gain = ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.value = freq;
-            gain.gain.value = vol || 0.1;
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start();
-            osc.stop(ctx.currentTime + dur);
-        } catch(e) {}
+    getAudio: function() {
+        if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+        return this.audioCtx;
     },
 
-    playCorrect: function() { this.beep(660, 0.12, 0.08); },
-    playWrong: function() { this.beep(220, 0.2, 0.08); },
-    playEnd: function() { this.beep(440, 0.3, 0.08); },
-    playTick: function() { this.beep(800, 0.05, 0.04); },
+    playNote: function(freq, start, dur, type, vol) {
+        var ctx = this.getAudio();
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = type || 'sine';
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(vol || 0.1, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + dur);
+    },
+
+    playDrum: function(start) {
+        var ctx = this.getAudio();
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(150, start);
+        osc.frequency.exponentialRampToValueAtTime(40, start + 0.08);
+        gain.gain.setValueAtTime(0.3, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.12);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + 0.12);
+    },
+
+    playHat: function(start) {
+        var ctx = this.getAudio();
+        var bufSize = ctx.sampleRate * 0.04;
+        var buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+        var data = buf.getChannelData(0);
+        for (var i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+        var src = ctx.createBufferSource();
+        src.buffer = buf;
+        var gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.08, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.04);
+        var hp = ctx.createBiquadFilter();
+        hp.type = 'highpass';
+        hp.frequency.value = 7000;
+        src.connect(hp);
+        hp.connect(gain);
+        gain.connect(ctx.destination);
+        src.start(start);
+    },
+
+    startMusic: function() {
+        this.musicPlaying = true;
+        var self = this;
+        var beatIndex = 0;
+        var bpm = 140;
+        var step = 60 / bpm / 2;
+
+        function scheduleBeat() {
+            if (!self.musicPlaying) return;
+            var ctx = self.getAudio();
+            var now = ctx.currentTime;
+
+            for (var i = 0; i < 8; i++) {
+                var t = now + i * step;
+                var idx = beatIndex + i;
+
+                self.playDrum(t);
+                if (idx % 2 === 1) self.playDrum(t);
+                self.playHat(t);
+                if (idx % 2 === 0) self.playHat(t + step * 0.5);
+
+                var bassNotes = [55, 55, 65, 55, 73, 73, 82, 65];
+                self.playNote(bassNotes[idx % 8], t, step * 1.5, 'sawtooth', 0.06);
+
+                if (idx % 4 === 0) {
+                    self.playNote(330, t, step, 'triangle', 0.04);
+                }
+                if (idx % 4 === 2) {
+                    self.playNote(440, t, step * 0.5, 'triangle', 0.03);
+                }
+            }
+
+            beatIndex += 8;
+            self.musicTimer = setTimeout(scheduleBeat, step * 8 * 1000 - 50);
+        }
+
+        scheduleBeat();
+    },
+
+    stopMusic: function() {
+        this.musicPlaying = false;
+        if (this.musicTimer) { clearTimeout(this.musicTimer); this.musicTimer = null; }
+    },
+
+    playCorrect: function() {
+        this.playNote(880, this.getAudio().currentTime, 0.1, 'sine', 0.1);
+    },
+    playWrong: function() {
+        this.playNote(200, this.getAudio().currentTime, 0.2, 'sawtooth', 0.08);
+    },
+    playTick: function() {
+        this.playNote(1000, this.getAudio().currentTime, 0.05, 'sine', 0.05);
+    },
+    playEnd: function() {
+        var now = this.getAudio().currentTime;
+        this.playNote(440, now, 0.2, 'sine', 0.1);
+        this.playNote(550, now + 0.15, 0.2, 'sine', 0.1);
+        this.playNote(660, now + 0.3, 0.3, 'sine', 0.1);
+    },
 
     reset: function() {
+        this.stopMusic();
         var s = this.state;
         s.score = 0;
         s.streak = 0;
@@ -140,6 +238,7 @@ NumPlay.register({
         NumPlay.el('MS_feedback').textContent = 'Jawab secepat mungkin!';
         NumPlay.el('MS_feedback').className = 'fb-card';
 
+        this.startMusic();
         this.showProblem();
 
         var self = this;
@@ -155,6 +254,7 @@ NumPlay.register({
 
             if (s.timeLeft <= 0) {
                 clearInterval(s.timer);
+                self.stopMusic();
                 self.playEnd();
                 s.active = false;
                 if (s.score > s.best) s.best = s.score;

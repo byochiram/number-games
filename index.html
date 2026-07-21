@@ -203,20 +203,24 @@
 
         .hidden { position: absolute; opacity: 0; width: 0; height: 0; }
 
-        .vkb { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 14px; }
-        .vkb-key {
-            width: 48px; height: 48px; border-radius: 12px;
-            border: 1.5px solid #e2e8f0; background: #fff; color: #1a1a2e;
-            font-size: 18px; font-weight: 700; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.15s; font-family: inherit;
+        .vkb {
+            display: grid; grid-template-columns: repeat(3, 1fr);
+            gap: 8px; margin-bottom: 14px; max-width: 260px; margin-left: auto; margin-right: auto;
         }
-        .vkb-key:active { background: #eef2ff; border-color: #6366f1; transform: scale(0.95); }
-        .vkb-key.wide { width: 72px; font-size: 13px; }
-        .vkb-key.action { background: #6366f1; color: #fff; border-color: #6366f1; }
-        .vkb-key.action:active { background: #4f46e5; }
-        .vkb-key.del { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
-        .vkb-key.del:active { background: #fee2e2; }
+        .vkb-key {
+            height: 54px; border-radius: 14px;
+            border: none; background: #f1f5f9; color: #1a1a2e;
+            font-size: 20px; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.12s; font-family: inherit;
+            box-shadow: 0 2px 0 #d1d5db;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .vkb-key:active { transform: translateY(2px); box-shadow: none; background: #e2e8f0; }
+        .vkb-key.action { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; box-shadow: 0 2px 0 #4f46e5; }
+        .vkb-key.action:active { background: #4f46e5; box-shadow: none; }
+        .vkb-key.del { background: #fee2e2; color: #dc2626; box-shadow: 0 2px 0 #fca5a5; font-size: 16px; }
+        .vkb-key.del:active { background: #fecaca; box-shadow: none; }
 
         .ms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
         .ms-opt {
@@ -308,8 +312,7 @@
             .modal-box h2 { font-size: 22px; }
             .modal-emoji { font-size: 40px; }
             .install-banner { padding: 10px 18px; font-size: 12px; bottom: 12px; }
-            .vkb-key { width: 42px; height: 42px; font-size: 16px; border-radius: 10px; }
-            .vkb-key.wide { width: 62px; font-size: 11px; }
+            .vkb-key { height: 48px; font-size: 18px; border-radius: 12px; }
             .ms-opt { padding: 14px; font-size: 20px; border-radius: 12px; }
             .ms-grid { gap: 8px; }
         }
@@ -412,7 +415,7 @@ var NumPlay = {
             '<button class="vkb-key" onclick="NumPlay.vkbPress(\'' + inputId + '\',\'9\')">9</button>' +
             '<button class="vkb-key del" onclick="NumPlay.vkbDel(\'' + inputId + '\')">\u232b</button>' +
             '<button class="vkb-key" onclick="NumPlay.vkbPress(\'' + inputId + '\',\'0\')">0</button>' +
-            '<button class="vkb-key action wide" onclick="' + onSubmit + '">\u21b5</button>' +
+            '<button class="vkb-key action" onclick="' + onSubmit + '">OK</button>' +
             '</div>';
     },
 
