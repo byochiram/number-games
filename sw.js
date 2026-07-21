@@ -1,4 +1,4 @@
-var CACHE_NAME = 'numplay-v1';
+var CACHE_NAME = 'numplay-v2';
 var urlsToCache = [
     '/',
     '/index.html',
