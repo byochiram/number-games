@@ -63,11 +63,13 @@ NumPlay.register({
 
         s.attempts++;
         NumPlay.el('G_att').textContent = s.attempts;
+        NumPlay.sfx('click.wav');
 
         var dist = Math.abs(g - s.target);
         var threshold = s.max <= 50 ? 3 : s.max <= 100 ? 5 : s.max <= 1000 ? 30 : 200;
 
         if (g === s.target) {
+            NumPlay.sfx('correct.wav');
             this.showFB('\u2714 Benar! Angkanya ' + s.target + '!', s.attempts + ' percobaan', 'ok');
             NumPlay.el('G_chips').innerHTML += '<span class="chip ok">' + g + '</span>';
             s.hi = s.target; s.lo = s.target;

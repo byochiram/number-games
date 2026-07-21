@@ -387,6 +387,14 @@ var NumPlay = {
         this.currentGame = null;
         var old = document.getElementById('N_hid');
         if (old) old.remove();
+        if (this.games.mathsprint) {
+            if (this.games.mathsprint.stopMusic) this.games.mathsprint.stopMusic();
+            if (this.games.mathsprint.state && this.games.mathsprint.state.timer) {
+                clearInterval(this.games.mathsprint.state.timer);
+                this.games.mathsprint.state.timer = null;
+            }
+            this.games.mathsprint.state.active = false;
+        }
 
         var html = '<div class="card">' +
             '<div class="logo-area">' +
@@ -428,6 +436,10 @@ var NumPlay = {
     setActivePill: function(el) {
         document.querySelectorAll('.pill').forEach(function(b) { b.classList.remove('on'); });
         el.classList.add('on');
+    },
+
+    sfx: function(file) {
+        try { var a = new Audio('sounds/' + file); a.volume = 0.4; a.play().catch(function(){}); } catch(e) {}
     },
 
     vkb: function(inputId, onSubmit) {

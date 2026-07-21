@@ -132,6 +132,7 @@ NumPlay.register({
         s.current = '';
         document.getElementById('N_hid').value = '';
         this.renderBoard();
+        NumPlay.sfx('click.wav');
 
         var allGreen = true;
         for (var i = 0; i < result.length; i++) {
@@ -140,11 +141,13 @@ NumPlay.register({
 
         if (allGreen) {
             s.over = true;
+            NumPlay.sfx('correct.wav');
             NumPlay.el('N_msg').textContent = '\u2714 ' + s.secret;
             NumPlay.el('N_msg_box').className = 'fb-card ok';
             NumPlay.showModal('\ud83c\udfc6', 'Benar!', 'Angkanya ' + s.secret, s.guesses.length + ' percobaan', this.reset.bind(this));
         } else if (s.guesses.length >= 6) {
             s.over = true;
+            NumPlay.sfx('wrong.wav');
             NumPlay.el('N_msg').textContent = 'Angkanya ' + s.secret;
             NumPlay.el('N_msg_box').className = 'fb-card high';
             NumPlay.showModal('\u274c', 'Habis!', 'Angkanya ' + s.secret, '', this.reset.bind(this));

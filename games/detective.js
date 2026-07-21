@@ -80,7 +80,13 @@ NumPlay.register({
     },
 
     reply: function(ans) {
-        this.addMsg('ai', ans ? '<b class="yes">\u2714 Ya</b>' : '<b class="no">\u2716 Tidak</b>');
+        if (ans) {
+            NumPlay.sfx('correct.wav');
+            this.addMsg('ai', '<b class="yes">\u2714 Ya</b>');
+        } else {
+            NumPlay.sfx('wrong.wav');
+            this.addMsg('ai', '<b class="no">\u2716 Tidak</b>');
+        }
     },
 
     addMsg: function(who, html) {
@@ -98,6 +104,7 @@ NumPlay.register({
         if (this.state.over) return;
         var display = q.includes('?') ? q : q + '?';
         var clean = q.trim().toLowerCase().replace(/\?+$/, '').replace(/[.,!]+$/g, '');
+        NumPlay.sfx('click.wav');
         this.addMsg('user', display);
         var self = this;
         setTimeout(function() { self.process(clean); }, 150);
@@ -138,11 +145,13 @@ NumPlay.register({
                 this.addMsg('ai', 'Angkanya antara <b class="yes">1</b> dan <b class="yes">' + s.max + '</b>');
             } else if (g === s.secret) {
                 s.over = true;
+                NumPlay.sfx('correct.wav');
                 this.addMsg('ai', '<b class="win">\u2714 Ya!</b>');
                 this.addSys('Game selesai!');
                 NumPlay.el('D_quick').innerHTML = '<button class="qp" onclick="NumPlay.games.detective.start()" style="border-color:#6366f1;color:#6366f1;padding:8px 20px">Mulai Lagi</button>';
                 NumPlay.showModal('\ud83c\udfc6', 'Benar!', 'Angkanya ' + s.secret, '', function() { self.start(); });
             } else {
+                NumPlay.sfx('wrong.wav');
                 this.addMsg('ai', '<b class="no">\u2716 Bukan</b>');
             }
         } else {
