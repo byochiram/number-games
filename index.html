@@ -498,7 +498,7 @@ var NumPlay = {
 
         for (var id in this.games) {
             var g = this.games[id];
-            html += '<div class="menu-card g' + ({guessing:1,numberle:2,detective:3,mathsprint:4,memory:5,match:6,pairs:7,pattern:8,clear:9}[id]||'') + '" data-game="' + id + '" style="border-left:4px solid ' + g.color + '">' +
+            html += '<div class="menu-card g' + ({guessing:1,numberle:2,detective:3,mathsprint:4,memory:5,match:6,pairs:7,pattern:8,sudoku:9}[id]||'') + '" data-game="' + id + '" style="border-left:4px solid ' + g.color + '">' +
                 '<div class="mc-badge" style="background:' + g.bg + ';color:' + g.color + '">' + g.icon + '</div>' +
                 '<div class="mc-body"><div class="mc-title">' + g.name + '</div><div class="mc-desc">' + g.desc + '</div></div>' +
                 '<div class="mc-arrow">\u203a</div></div>';
@@ -613,7 +613,7 @@ if ('serviceWorker' in navigator) {
 <script src="games/match.js"></script>
 <script src="games/pairs.js"></script>
 <script src="games/pattern.js"></script>
-<script src="games/clear.js"></script>
+<script src="games/sudoku.js"></script>
 
 <script>NumPlay.showMenu();</script>
 </body>
