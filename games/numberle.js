@@ -66,6 +66,8 @@ NumPlay.register({
             inp.id = 'N_hid';
             inp.className = 'hidden';
             inp.autocomplete = 'off';
+            inp.inputMode = 'numeric';
+            inp.pattern = '[0-9]*';
             inp.maxLength = s.dig;
             inp.addEventListener('input', function() {
                 if (s.over) return;
