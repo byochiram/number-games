@@ -64,6 +64,7 @@
         .menu-card.g5::after { background: linear-gradient(270deg, rgba(139,92,246,0.06), transparent); }
         .menu-card.g6::after { background: linear-gradient(270deg, rgba(6,182,212,0.06), transparent); }
         .menu-card.g7::after { background: linear-gradient(270deg, rgba(217,70,239,0.06), transparent); }
+        .menu-card.g8::after { background: linear-gradient(270deg, rgba(245,158,11,0.06), transparent); }
         .menu-card:hover::after { opacity: 1; }
         .menu-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
         .menu-card.g1:hover { border-color: #f97316; }
@@ -73,6 +74,7 @@
         .menu-card.g5:hover { border-color: #8b5cf6; }
         .menu-card.g6:hover { border-color: #06b6d4; }
         .menu-card.g7:hover { border-color: #d946ef; }
+        .menu-card.g8:hover { border-color: #f59e0b; }
 
         .menu-grid { display: grid; grid-template-columns: 1fr; gap: 0; }
         @media (min-width: 561px) {
@@ -303,6 +305,22 @@
         .pc-card.matched { border-color: #10b981; background: #d1fae5; }
         .pc-card.matched .pc-num { color: #10b981; }
 
+        .pg-num {
+            display: inline-flex; align-items: center; justify-content: center;
+            min-width: 48px; height: 48px; padding: 0 12px;
+            border-radius: 12px; background: #fffbeb; border: 2px solid #fde68a;
+            font-size: 20px; font-weight: 800; color: #92400e;
+        }
+        .pg-unknown { background: #fef3c7; border-color: #f59e0b; color: #f59e0b; font-size: 24px; }
+        .pg-opt {
+            padding: 16px; border-radius: 14px; border: 2px solid #e2e8f0;
+            background: #fff; color: #1a1a2e; font-size: 22px; font-weight: 800;
+            cursor: pointer; transition: all 0.15s; font-family: inherit;
+            text-align: center; -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation; user-select: none;
+        }
+        .pg-opt:active { background: #fffbeb; border-color: #f59e0b; transform: scale(0.96); }
+
         .modal {
             display: none; position: fixed; top: 0; left: 0;
             width: 100%; height: 100%;
@@ -468,7 +486,7 @@ var NumPlay = {
 
         for (var id in this.games) {
             var g = this.games[id];
-            html += '<div class="menu-card g' + ({guessing:1,numberle:2,detective:3,mathsprint:4,memory:5,match:6,pairs:7}[id]||'') + '" data-game="' + id + '" style="border-left:4px solid ' + g.color + '">' +
+            html += '<div class="menu-card g' + ({guessing:1,numberle:2,detective:3,mathsprint:4,memory:5,match:6,pairs:7,pattern:8}[id]||'') + '" data-game="' + id + '" style="border-left:4px solid ' + g.color + '">' +
                 '<div class="mc-badge" style="background:' + g.bg + ';color:' + g.color + '">' + g.icon + '</div>' +
                 '<div class="mc-body"><div class="mc-title">' + g.name + '</div><div class="mc-desc">' + g.desc + '</div></div>' +
                 '<div class="mc-arrow">\u203a</div></div>';
@@ -582,6 +600,7 @@ if ('serviceWorker' in navigator) {
 <script src="games/memory.js"></script>
 <script src="games/match.js"></script>
 <script src="games/pairs.js"></script>
+<script src="games/pattern.js"></script>
 
 <script>NumPlay.showMenu();</script>
 </body>
