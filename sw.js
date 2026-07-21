@@ -1,4 +1,4 @@
-var CACHE_NAME = 'numplay-v3';
+var CACHE_NAME = 'numplay-v4';
 var urlsToCache = [
     '/',
     '/index.html',
@@ -8,7 +8,13 @@ var urlsToCache = [
     '/games/mathsprint.js',
     '/manifest.json',
     '/icon-192.png',
-    '/icon-512.png'
+    '/icon-512.png',
+    '/sounds/correct.wav',
+    '/sounds/wrong.wav',
+    '/sounds/tick.wav',
+    '/sounds/end.wav',
+    '/sounds/click.wav',
+    '/sounds/hit.wav'
 ];
 
 self.addEventListener('install', function(event) {

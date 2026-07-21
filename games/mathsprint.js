@@ -8,33 +8,20 @@ NumPlay.register({
 
     state: {},
 
-    beep: function(freq, dur) {
+    playSound: function(file) {
         try {
-            var ctx = new (window.AudioContext || window.webkitAudioContext)();
-            var osc = ctx.createOscillator();
-            var gain = ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.value = freq;
-            gain.gain.value = 0.08;
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start();
-            osc.stop(ctx.currentTime + dur);
+            var audio = new Audio('sounds/' + file);
+            audio.volume = 0.3;
+            audio.play();
         } catch(e) {}
     },
 
     stopMusic: function() {},
 
-    playCorrect: function() { this.beep(660, 0.1); },
-    playWrong: function() { this.beep(200, 0.2); },
-    playTick: function() { this.beep(900, 0.05); },
-    playEnd: function() {
-        var self = this;
-        self.beep(440, 0.15);
-        setTimeout(function() { self.beep(550, 0.15); }, 120);
-        setTimeout(function() { self.beep(660, 0.25); }, 240);
-    },
+    playCorrect: function() { this.playSound('correct.wav'); },
+    playWrong: function() { this.playSound('wrong.wav'); },
+    playTick: function() { this.playSound('tick.wav'); },
+    playEnd: function() { this.playSound('end.wav'); },
 
     reset: function() {
         this.stopMusic();

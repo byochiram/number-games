@@ -60,11 +60,13 @@
         .menu-card.g1::after { background: linear-gradient(270deg, rgba(249,115,22,0.06), transparent); }
         .menu-card.g2::after { background: linear-gradient(270deg, rgba(16,185,129,0.06), transparent); }
         .menu-card.g3::after { background: linear-gradient(270deg, rgba(59,130,246,0.06), transparent); }
+        .menu-card.g4::after { background: linear-gradient(270deg, rgba(239,68,68,0.06), transparent); }
         .menu-card:hover::after { opacity: 1; }
         .menu-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
         .menu-card.g1:hover { border-color: #f97316; }
         .menu-card.g2:hover { border-color: #10b981; }
         .menu-card.g3:hover { border-color: #3b82f6; }
+        .menu-card.g4:hover { border-color: #ef4444; }
         .mc-badge {
             width: 52px; height: 52px; border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
@@ -379,7 +381,7 @@ var NumPlay = {
 
         for (var id in this.games) {
             var g = this.games[id];
-            html += '<div class="menu-card g' + ({guessing:1,numberle:2,detective:3}[id]) + '" data-game="' + id + '" style="border-left:4px solid ' + g.color + '">' +
+            html += '<div class="menu-card g' + ({guessing:1,numberle:2,detective:3,mathsprint:4}[id]||'') + '" data-game="' + id + '" style="border-left:4px solid ' + g.color + '">' +
                 '<div class="mc-badge" style="background:' + g.bg + ';color:' + g.color + '">' + g.icon + '</div>' +
                 '<div class="mc-body"><div class="mc-title">' + g.name + '</div><div class="mc-desc">' + g.desc + '</div></div>' +
                 '<div class="mc-arrow">\u203a</div></div>';
