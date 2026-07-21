@@ -7,6 +7,7 @@ NumPlay.register({
     bg: '#fef2f2',
 
     state: {},
+    bgMusic: null,
 
     playSound: function(file) {
         try {
@@ -16,12 +17,34 @@ NumPlay.register({
         } catch(e) {}
     },
 
-    stopMusic: function() {},
+    startMusic: function() {
+        try {
+            if (!this.bgMusic) {
+                this.bgMusic = new Audio('sounds/music.mp4');
+                this.bgMusic.loop = true;
+                this.bgMusic.volume = 0.15;
+            }
+            this.bgMusic.currentTime = 0;
+            this.bgMusic.play();
+        } catch(e) {}
+    },
+
+    stopMusic: function() {
+        try {
+            if (this.bgMusic) {
+                this.bgMusic.pause();
+                this.bgMusic.currentTime = 0;
+            }
+        } catch(e) {}
+    },
 
     playCorrect: function() { this.playSound('correct.wav'); },
     playWrong: function() { this.playSound('wrong.wav'); },
     playTick: function() { this.playSound('tick.wav'); },
-    playEnd: function() { this.playSound('end.wav'); },
+    playEnd: function() {
+        this.stopMusic();
+        this.playSound('end.wav');
+    },
 
     reset: function() {
         this.stopMusic();
@@ -135,6 +158,7 @@ NumPlay.register({
         NumPlay.el('MS_feedback').textContent = 'Jawab secepat mungkin!';
         NumPlay.el('MS_feedback').className = 'fb-card';
 
+        this.startMusic();
         this.showProblem();
 
         var self = this;

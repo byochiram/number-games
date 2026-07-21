@@ -1,4 +1,4 @@
-var CACHE_NAME = 'numplay-v4';
+var CACHE_NAME = 'numplay-v5';
 var urlsToCache = [
     '/',
     '/index.html',
@@ -14,7 +14,8 @@ var urlsToCache = [
     '/sounds/tick.wav',
     '/sounds/end.wav',
     '/sounds/click.wav',
-    '/sounds/hit.wav'
+    '/sounds/hit.wav',
+    '/sounds/music.mp4'
 ];
 
 self.addEventListener('install', function(event) {
