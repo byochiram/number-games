@@ -26,6 +26,8 @@ NumPlay.register({
         NumPlay.el('G_best').textContent = s.best[s.max] || '-';
         NumPlay.el('G_inp').value = '';
         NumPlay.el('G_display').textContent = '?';
+        var field = NumPlay.el('G_field');
+        if (field) { field.value = ''; field.focus(); }
     },
 
     setDiff: function(i, el) {
@@ -34,16 +36,28 @@ NumPlay.register({
         this.reset();
     },
 
-    guess: function() {
-        var s = this.state;
+    getVal: function() {
+        var field = NumPlay.el('G_field');
+        var inp = NumPlay.el('G_inp');
+        if (field && field.offsetParent !== null) return field.value;
+        return inp ? inp.value : '';
+    },
+    clearVal: function() {
+        var field = NumPlay.el('G_field');
         var inp = NumPlay.el('G_inp');
         var display = NumPlay.el('G_display');
-        var g = parseInt(inp.value);
+        if (field) field.value = '';
+        if (inp) inp.value = '';
+        if (display) display.textContent = '?';
+    },
+
+    guess: function() {
+        var s = this.state;
+        var g = parseInt(this.getVal());
 
         if (isNaN(g) || g < s.lo || g > s.hi) {
             this.showFB('Masukkan ' + s.lo + '\u2013' + s.hi, '', 'err');
-            inp.value = '';
-            display.textContent = '?';
+            this.clearVal();
             return;
         }
 
@@ -85,8 +99,7 @@ NumPlay.register({
         this.showFB(line1, line2, type);
         NumPlay.el('G_chips').innerHTML += '<span class="chip ' + type + '">' + g + '</span>';
         s.prevDist = dist;
-        inp.value = '';
-        display.textContent = '?';
+        this.clearVal();
     },
 
     showFB: function(l1, l2, type) {
@@ -113,9 +126,15 @@ NumPlay.register({
                 '<div class="range-dot"></div>' +
                 '<div class="range-box" id="G_hi">' + s.max + '</div>' +
             '</div>' +
-            '<div class="fb-card" id="G_display" style="font-size:32px;font-weight:800;min-height:56px;color:#6366f1;letter-spacing:4px;background:#f8fafc;border:2px solid #e2e8f0">?</div>' +
-            '<input type="text" inputmode="none" id="G_inp">' +
-            NumPlay.vkb('G_inp', 'NumPlay.games.guessing.guess()') +
+            '<div class="desktop-input"><div class="input-bar">' +
+                '<input type="text" inputmode="numeric" pattern="[0-9]*" class="field center" id="G_field" placeholder="Tebak angka..." onkeypress="if(event.key===\'Enter\')NumPlay.games.guessing.guess()">' +
+                '<button class="btn" onclick="NumPlay.games.guessing.guess()">Tebak</button>' +
+            '</div></div>' +
+            '<div class="mobile-input">' +
+                '<div class="fb-card" id="G_display" style="font-size:32px;font-weight:800;min-height:56px;color:#6366f1;letter-spacing:4px;background:#f8fafc;border:2px solid #e2e8f0">?</div>' +
+                '<input type="text" class="hidden" inputmode="none" id="G_inp">' +
+                NumPlay.vkb('G_inp', 'NumPlay.games.guessing.guess()') +
+            '</div>' +
             '<div class="fb-card" id="G_fb"><div class="l1" id="G_l1"></div><div class="l2" id="G_l2"></div></div>' +
             '<div class="chips" id="G_chips"></div>' +
             '<div class="stats-bar">' +
