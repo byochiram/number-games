@@ -97,6 +97,8 @@
         .pill:hover { border-color: #a78bfa; }
 
         .input-bar { display: flex; gap: 8px; margin-bottom: 16px; }
+        .input-bar .field { flex: 1; min-width: 0; }
+        .input-bar .btn { flex-shrink: 0; }
         .field {
             flex: 1; padding: 13px 16px; border: 2px solid #e2e8f0; border-radius: 14px;
             background: #fff; color: #1a1a2e; font-size: 15px; font-weight: 600;
@@ -257,6 +259,7 @@
             .top-info h2 { font-size: 17px; }
             .pill { padding: 6px 12px; font-size: 10px; }
             .input-bar { gap: 6px; }
+            .input-bar .btn { padding: 12px 16px; font-size: 13px; }
             .field { padding: 12px 14px; font-size: 14px; border-radius: 12px; }
             .field.center { font-size: 18px; }
             .btn { padding: 12px 20px; font-size: 13px; border-radius: 12px; }
