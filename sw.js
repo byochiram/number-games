@@ -1,4 +1,4 @@
-var CACHE_NAME = 'numplay-v7';
+var CACHE_NAME = 'numplay-v8';
 var urlsToCache = [
     '/',
     '/index.html',
@@ -8,6 +8,7 @@ var urlsToCache = [
     '/games/mathsprint.js',
     '/games/memory.js',
     '/games/match.js',
+    '/games/pairs.js',
     '/manifest.json',
     '/icon-192.png',
     '/icon-512.png',
