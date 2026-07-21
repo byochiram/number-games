@@ -9,23 +9,28 @@ NumPlay.register({
     state: {},
     bgMusic: null,
 
+    initMusic: function() {
+        if (!this.bgMusic) {
+            this.bgMusic = new Audio('sounds/music.mp4');
+            this.bgMusic.loop = true;
+            this.bgMusic.volume = 0.15;
+            this.bgMusic.preload = 'auto';
+        }
+    },
+
     playSound: function(file) {
         try {
             var audio = new Audio('sounds/' + file);
             audio.volume = 0.3;
-            audio.play();
+            audio.play().catch(function() {});
         } catch(e) {}
     },
 
     startMusic: function() {
+        this.initMusic();
         try {
-            if (!this.bgMusic) {
-                this.bgMusic = new Audio('sounds/music.mp4');
-                this.bgMusic.loop = true;
-                this.bgMusic.volume = 0.15;
-            }
             this.bgMusic.currentTime = 0;
-            this.bgMusic.play();
+            this.bgMusic.play().catch(function() {});
         } catch(e) {}
     },
 
@@ -47,6 +52,7 @@ NumPlay.register({
     },
 
     reset: function() {
+        if (this.state.timer) clearInterval(this.state.timer);
         this.stopMusic();
         var s = this.state;
         s.score = 0;
@@ -146,6 +152,7 @@ NumPlay.register({
 
     start: function() {
         var s = this.state;
+        if (s.timer) clearInterval(s.timer);
         s.score = 0;
         s.streak = 0;
         s.timeLeft = 30;
@@ -174,6 +181,7 @@ NumPlay.register({
 
             if (s.timeLeft <= 0) {
                 clearInterval(s.timer);
+                s.timer = null;
                 self.playEnd();
                 s.active = false;
                 if (s.score > s.best) s.best = s.score;
