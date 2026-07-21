@@ -114,7 +114,7 @@ NumPlay.register({
                 '<div class="range-box" id="G_hi">' + s.max + '</div>' +
             '</div>' +
             '<div class="fb-card" id="G_display" style="font-size:32px;font-weight:800;min-height:56px;color:#6366f1;letter-spacing:4px;background:#f8fafc;border:2px solid #e2e8f0">?</div>' +
-            '<input type="hidden" id="G_inp">' +
+            '<input type="text" inputmode="none" id="G_inp">' +
             NumPlay.vkb('G_inp', 'NumPlay.games.guessing.guess()') +
             '<div class="fb-card" id="G_fb"><div class="l1" id="G_l1"></div><div class="l2" id="G_l2"></div></div>' +
             '<div class="chips" id="G_chips"></div>' +
