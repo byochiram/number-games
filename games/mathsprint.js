@@ -13,7 +13,7 @@ NumPlay.register({
         if (!this.bgMusic) {
             this.bgMusic = new Audio('sounds/music.mp4');
             this.bgMusic.loop = true;
-            this.bgMusic.volume = 0.15;
+            this.bgMusic.volume = 0.5;
             this.bgMusic.preload = 'auto';
         }
     },
@@ -21,7 +21,7 @@ NumPlay.register({
     playSound: function(file) {
         try {
             var audio = new Audio('sounds/' + file);
-            audio.volume = 0.3;
+            audio.volume = 0.5;
             audio.play().catch(function() {});
         } catch(e) {}
     },
