@@ -7,8 +7,37 @@ NumPlay.register({
     bg: '#ecfeff',
 
     state: {},
+    bgMusic: null,
+
+    initMusic: function() {
+        if (!this.bgMusic) {
+            this.bgMusic = new Audio('sounds/music.mp4');
+            this.bgMusic.loop = true;
+            this.bgMusic.volume = 0.4;
+            this.bgMusic.preload = 'auto';
+        }
+    },
+
+    startMusic: function() {
+        this.initMusic();
+        try { this.bgMusic.currentTime = 0; this.bgMusic.play().catch(function(){}); } catch(e) {}
+    },
+
+    stopMusic: function() {
+        try {
+            if (this.bgMusic) {
+                this.bgMusic.pause();
+                this.bgMusic.currentTime = 0;
+                this.bgMusic.src = '';
+                this.bgMusic.load();
+                this.bgMusic = null;
+            }
+        } catch(e) {}
+    },
 
     reset: function() {
+        if (this.state.timer) clearInterval(this.state.timer);
+        this.stopMusic();
         var s = this.state;
         s.score = 0;
         s.best = s.best || 0;
@@ -20,11 +49,14 @@ NumPlay.register({
         s.selected = [];
         s.found = [];
         s.pairsLeft = 0;
+        s.streak = 0;
         NumPlay.el('NM_score2').textContent = '0';
         NumPlay.el('NM_best2').textContent = s.best;
         NumPlay.el('NM_time2').textContent = '45';
         NumPlay.el('NM_time2').style.color = '#1a1a2e';
+        NumPlay.el('NM_streak2').textContent = '0';
         NumPlay.el('NM_target').textContent = '?';
+        NumPlay.el('NM_target').style.textShadow = 'none';
         NumPlay.el('NM_pairs').textContent = '0';
         NumPlay.el('NM_feedback2').textContent = 'Tekan Mulai!';
         NumPlay.el('NM_feedback2').className = 'fb-card';
@@ -53,17 +85,14 @@ NumPlay.register({
         }
 
         s.pairsLeft = numPairs;
-
         var cells = [];
         for (var i = 0; i < pairs.length; i++) {
             cells.push(pairs[i][0]);
             cells.push(pairs[i][1]);
         }
-
         while (cells.length < 16) {
             cells.push(Math.floor(Math.random() * 18) + 1);
         }
-
         for (var i = cells.length - 1; i > 0; i--) {
             var j = Math.floor(Math.random() * (i + 1));
             var tmp = cells[i]; cells[i] = cells[j]; cells[j] = tmp;
@@ -71,6 +100,7 @@ NumPlay.register({
 
         s.grid = cells;
         NumPlay.el('NM_target').textContent = target;
+        NumPlay.el('NM_target').style.textShadow = '0 0 20px rgba(6,182,212,0.4)';
         NumPlay.el('NM_pairs').textContent = s.pairsLeft;
         this.renderGrid();
     },
@@ -84,7 +114,8 @@ NumPlay.register({
             var cls = 'nm-cell';
             if (found) cls += ' found';
             else if (sel) cls += ' selected';
-            html += '<button class="' + cls + '" onclick="NumPlay.games.match.tap(' + i + ')">' + (found ? '\u2713' : s.grid[i]) + '</button>';
+            var content = found ? '\u2713' : s.grid[i];
+            html += '<button class="' + cls + '" ontouchstart="" onclick="NumPlay.games.match.tap(' + i + ')">' + content + '</button>';
         }
         NumPlay.el('NM_grid').innerHTML = html;
     },
@@ -100,6 +131,8 @@ NumPlay.register({
             return;
         }
 
+        if (s.selected.length >= 2) return;
+
         s.selected.push(idx);
         NumPlay.sfx('click.wav');
         this.renderGrid();
@@ -113,10 +146,16 @@ NumPlay.register({
                 s.found.push(i0);
                 s.found.push(i1);
                 s.pairsLeft--;
-                s.score += 10;
+                s.streak++;
+                var bonus = s.streak > 2 ? 15 : 10;
+                s.score += bonus;
                 NumPlay.el('NM_score2').textContent = s.score;
                 NumPlay.el('NM_pairs').textContent = s.pairsLeft;
-                NumPlay.el('NM_feedback2').textContent = '\u2714 ' + a + ' + ' + b + ' = ' + s.target + '  (' + s.pairsLeft + ' pasangan lagi)';
+                NumPlay.el('NM_streak2').textContent = s.streak;
+                var msg = '\u2714 ' + a + ' + ' + b + ' = ' + s.target;
+                if (s.streak > 2) msg += '  (streak x' + s.streak + '!)';
+                msg += '  (' + s.pairsLeft + ' lagi)';
+                NumPlay.el('NM_feedback2').textContent = msg;
                 NumPlay.el('NM_feedback2').className = 'fb-card ok';
                 NumPlay.sfx('correct.wav');
                 s.selected = [];
@@ -124,9 +163,11 @@ NumPlay.register({
 
                 if (s.pairsLeft <= 0) {
                     NumPlay.el('NM_feedback2').textContent = '\ud83c\udf89 Semua ketemu! Grid baru...';
-                    setTimeout(function() { self.genGrid(); }, 1000);
+                    setTimeout(function() { self.genGrid(); }, 800);
                 }
             } else {
+                s.streak = 0;
+                NumPlay.el('NM_streak2').textContent = '0';
                 NumPlay.el('NM_feedback2').textContent = '\u2716 ' + a + ' + ' + b + ' = ' + (a + b) + '  (bukan ' + s.target + ')';
                 NumPlay.el('NM_feedback2').className = 'fb-card high';
                 NumPlay.sfx('wrong.wav');
@@ -140,15 +181,18 @@ NumPlay.register({
         var s = this.state;
         if (s.timer) clearInterval(s.timer);
         s.score = 0;
+        s.streak = 0;
         s.timeLeft = 45;
         s.active = true;
         NumPlay.el('NM_score2').textContent = '0';
+        NumPlay.el('NM_streak2').textContent = '0';
         NumPlay.el('NM_time2').textContent = '45';
         NumPlay.el('NM_time2').style.color = '#1a1a2e';
         NumPlay.el('NM_start2').style.display = 'none';
         NumPlay.el('NM_feedback2').textContent = 'Cari pasangan yang jumlahnya = target!';
         NumPlay.el('NM_feedback2').className = 'fb-card';
 
+        this.startMusic();
         this.genGrid();
 
         var self = this;
@@ -165,6 +209,8 @@ NumPlay.register({
             if (s.timeLeft <= 0) {
                 clearInterval(s.timer);
                 s.timer = null;
+                self.stopMusic();
+                NumPlay.sfx('end.wav');
                 s.active = false;
                 if (s.score > s.best) s.best = s.score;
                 NumPlay.el('NM_best2').textContent = s.best;
@@ -172,7 +218,6 @@ NumPlay.register({
                 NumPlay.el('NM_feedback2').className = 'fb-card err';
                 NumPlay.el('NM_start2').style.display = '';
                 NumPlay.el('NM_start2').textContent = 'Main Lagi';
-                NumPlay.sfx('end.wav');
                 NumPlay.showModal('\ud83c\udfaf', 'Waktu Habis!', s.score + ' poin', s.score >= s.best && s.score > 0 ? 'Skor baru!' : '', function() { self.reset(); });
             }
         }, 1000);
@@ -182,18 +227,20 @@ NumPlay.register({
         NumPlay.el('app').innerHTML =
             '<div class="card">' +
             NumPlay.topBar(this.name, 'Cari pasangan yang jumlahnya = target') +
-            '<div style="display:flex;justify-content:center;gap:28px;margin-bottom:12px">' +
-                '<div style="text-align:center"><div style="font-size:42px;font-weight:800;color:#06b6d4" id="NM_time2">45</div><div style="font-size:10px;color:#94a3b8;font-weight:700">DETIK</div></div>' +
-                '<div style="text-align:center"><div style="font-size:42px;font-weight:800;color:#6366f1" id="NM_score2">0</div><div style="font-size:10px;color:#94a3b8;font-weight:700">POIN</div></div>' +
+            '<div style="display:flex;justify-content:center;gap:20px;margin-bottom:10px">' +
+                '<div class="nm-stat"><div class="nm-stat-val" style="color:#06b6d4" id="NM_time2">45</div><div class="nm-stat-lbl">DETIK</div></div>' +
+                '<div class="nm-stat"><div class="nm-stat-val" style="color:#6366f1" id="NM_score2">0</div><div class="nm-stat-lbl">POIN</div></div>' +
+                '<div class="nm-stat"><div class="nm-stat-val" style="color:#f59e0b" id="NM_streak2">0</div><div class="nm-stat-lbl">STREAK</div></div>' +
             '</div>' +
-            '<div style="text-align:center;margin-bottom:10px;font-size:13px;color:#94a3b8;font-weight:600">' +
-                'TARGET: <span style="font-size:28px;font-weight:800;color:#06b6d4" id="NM_target">?</span>' +
-                '  \u2022  Sisa: <span style="font-weight:800;color:#f59e0b" id="NM_pairs">0</span> pasangan' +
-                '  \u2022  Terbaik: <span style="font-weight:800;color:#10b981" id="NM_best2">0</span>' +
+            '<div class="nm-target-bar">' +
+                '<div class="nm-target-item">TARGET</div>' +
+                '<div class="nm-target-num" id="NM_target">?</div>' +
+                '<div class="nm-target-item">Sisa: <b id="NM_pairs">0</b></div>' +
+                '<div class="nm-target-item">Terbaik: <b id="NM_best2">0</b></div>' +
             '</div>' +
             '<div class="fb-card" id="NM_feedback2" style="font-size:13px;font-weight:700;margin-bottom:10px;padding:10px">Tekan Mulai!</div>' +
             '<div id="NM_grid" class="nm-grid"></div>' +
-            '<button class="btn" id="NM_start2" onclick="NumPlay.games.match.start()" style="width:100%;font-size:16px;padding:16px;margin-top:10px">Mulai!</button>' +
+            '<button class="btn" id="NM_start2" onclick="NumPlay.games.match.start()" style="width:100%;font-size:16px;padding:16px;margin-top:10px;background:linear-gradient(135deg,#06b6d4,#0891b2);box-shadow:0 4px 16px rgba(6,182,212,0.3)">Mulai!</button>' +
             '</div>';
 
         this.reset();
