@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#667eea">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NumPlay">
     <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="icon-192.png">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <title>Number Games</title>
+    <title>NumPlay</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -379,16 +380,18 @@ var NumPlay = {
 };
 
 window.addEventListener('beforeinstallprompt', function(e) {
-    e.preventDefault();
     NumPlay.deferredPrompt = e;
-    var banner = NumPlay.el('installBanner');
-    banner.classList.add('show');
+    setTimeout(function() {
+        NumPlay.el('installBanner').classList.add('show');
+    }, 2000);
     NumPlay.el('installBtn').onclick = function() {
-        banner.classList.remove('show');
-        NumPlay.deferredPrompt.prompt();
-        NumPlay.deferredPrompt.userChoice.then(function() { NumPlay.deferredPrompt = null; });
+        NumPlay.el('installBanner').classList.remove('show');
+        if (NumPlay.deferredPrompt) {
+            NumPlay.deferredPrompt.prompt();
+            NumPlay.deferredPrompt.userChoice.then(function() { NumPlay.deferredPrompt = null; });
+        }
     };
-    NumPlay.el('installClose').onclick = function() { banner.classList.remove('show'); };
+    NumPlay.el('installClose').onclick = function() { NumPlay.el('installBanner').classList.remove('show'); };
 });
 
 if ('serviceWorker' in navigator) {

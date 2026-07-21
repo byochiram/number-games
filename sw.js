@@ -5,7 +5,9 @@ var urlsToCache = [
     '/games/guessing.js',
     '/games/numberle.js',
     '/games/detective.js',
-    '/manifest.json'
+    '/manifest.json',
+    '/icon-192.png',
+    '/icon-512.png'
 ];
 
 self.addEventListener('install', function(event) {
