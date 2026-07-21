@@ -18,7 +18,7 @@ NumPlay.register({
         s.grid = [];
         s.active = false;
         s.timer = null;
-        s.spawnRate = 4000;
+        s.spawnRate = 5000;
         s.highlight = [];
         for (var r = 0; r < this.rows; r++) {
             s.grid[r] = [];
@@ -26,11 +26,22 @@ NumPlay.register({
         }
         NumPlay.el('NC_score').textContent = '0';
         NumPlay.el('NC_best').textContent = s.best;
-        NumPlay.el('NC_feedback').innerHTML = '<b>Klik angka yang sama dan berdampingan</b> untuk hapus. Minimal 2 angka!';
+        NumPlay.el('NC_feedback').innerHTML = '<b>Klik angka yang sama dan berdampingan</b> untuk hapus. Minimal 2!';
         NumPlay.el('NC_feedback').className = 'fb-card';
         NumPlay.el('NC_grid').innerHTML = '';
         NumPlay.el('NC_start').style.display = '';
         NumPlay.el('NC_how').style.display = '';
+    },
+
+    hasMatch: function() {
+        for (var r = 0; r < this.rows; r++) {
+            for (var c = 0; c < this.cols; c++) {
+                if (this.state.grid[r][c] === 0) continue;
+                var group = this.findGroup(r, c, this.state.grid[r][c], {});
+                if (group.length >= 2) return true;
+            }
+        }
+        return false;
     },
 
     spawnRow: function() {
@@ -38,12 +49,25 @@ NumPlay.register({
         for (var c = 0; c < this.cols; c++) {
             if (s.grid[0][c] !== 0) return true;
         }
-        for (var r = this.rows - 1; r > 0; r--) {
-            for (var c = 0; c < this.cols; c++) s.grid[r][c] = s.grid[r-1][c];
+
+        for (var r = 0; r < this.rows - 1; r++) {
+            for (var c = 0; c < this.cols; c++) {
+                s.grid[r][c] = s.grid[r + 1][c];
+            }
         }
+
         for (var c = 0; c < this.cols; c++) {
-            s.grid[0][c] = Math.floor(Math.random() * 4) + 1;
+            s.grid[this.rows - 1][c] = Math.floor(Math.random() * 4) + 1;
         }
+
+        if (!this.hasMatch()) {
+            var c1 = Math.floor(Math.random() * (this.cols - 1));
+            var val = s.grid[this.rows - 1][c1];
+            if (val === 0) val = Math.floor(Math.random() * 4) + 1;
+            s.grid[this.rows - 1][c1] = val;
+            s.grid[this.rows - 1][c1 + 1] = val;
+        }
+
         this.renderGrid();
         return false;
     },
@@ -64,6 +88,7 @@ NumPlay.register({
 
     highlightGroup: function(r, c) {
         var s = this.state;
+        if (!s.active) return;
         var val = s.grid[r][c];
         if (val === 0) { s.highlight = []; this.renderGrid(); return; }
         s.highlight = this.findGroup(r, c, val, {});
@@ -85,9 +110,7 @@ NumPlay.register({
                 if (v > 0) {
                     style = 'background:' + colors[v] + ';color:#fff;border-color:' + colors[v];
                     if (isHl && s.highlight.length >= 2) {
-                        style += ';box-shadow:0 0 12px ' + colors[v] + ';transform:scale(1.08);border-color:#fff';
-                    } else if (isHl && s.highlight.length < 2) {
-                        style += ';opacity:0.5';
+                        style += ';box-shadow:0 0 14px ' + colors[v] + ';transform:scale(1.1);border-color:#fff;z-index:1';
                     }
                 }
                 html += '<button class="nc-cell" style="' + style + '" ontouchstart="" ' +
@@ -110,7 +133,7 @@ NumPlay.register({
 
         if (group.length < 2) {
             NumPlay.sfx('wrong.wav');
-            NumPlay.el('NC_feedback').textContent = 'Cuma 1 angka! Butuh minimal 2 yang berdampingan.';
+            NumPlay.el('NC_feedback').textContent = 'Cuma 1 angka! Cari yang berdampingan (atas/bawah/kiri/kanan).';
             NumPlay.el('NC_feedback').className = 'fb-card err';
             return;
         }
@@ -125,18 +148,21 @@ NumPlay.register({
         }
 
         for (var c2 = 0; c2 < this.cols; c2++) {
-            var write = this.rows - 1;
-            for (var r2 = this.rows - 1; r2 >= 0; r2--) {
-                if (s.grid[r2][c2] !== 0) {
-                    if (write !== r2) { s.grid[write][c2] = s.grid[r2][c2]; s.grid[r2][c2] = 0; }
-                    write--;
-                }
+            var empty = [];
+            var filled = [];
+            for (var r2 = 0; r2 < this.rows; r2++) {
+                if (s.grid[r2][c2] !== 0) filled.push(s.grid[r2][c2]);
+            }
+            for (var r2 = 0; r2 < this.rows - filled.length; r2++) empty.push(0);
+            var newCol = empty.concat(filled);
+            for (var r2 = 0; r2 < this.rows; r2++) {
+                s.grid[r2][c2] = newCol[r2];
             }
         }
 
         s.highlight = [];
         var bonus = group.length > 3 ? ' \ud83d\udd25' : '';
-        NumPlay.el('NC_feedback').textContent = '\u2714 Hapus ' + group.length + ' angka! +' + points + ' poin' + bonus;
+        NumPlay.el('NC_feedback').textContent = '\u2714 Hapus ' + group.length + '! +' + points + ' poin' + bonus;
         NumPlay.el('NC_feedback').className = 'fb-card ok';
         this.renderGrid();
     },
@@ -146,7 +172,7 @@ NumPlay.register({
         if (s.timer) clearInterval(s.timer);
         s.score = 0;
         s.active = true;
-        s.spawnRate = 4000;
+        s.spawnRate = 5000;
         s.highlight = [];
         s.grid = [];
         for (var r = 0; r < this.rows; r++) {
@@ -178,7 +204,7 @@ NumPlay.register({
                 NumPlay.el('NC_start').textContent = 'Main Lagi';
                 NumPlay.showModal('\ud83d\uddd1\ufe0f', 'Game Over!', s.score + ' poin', s.score >= s.best && s.score > 0 ? 'Skor baru!' : '', function() { self.reset(); });
             }
-            if (s.spawnRate > 1500) s.spawnRate -= 30;
+            if (s.spawnRate > 2000) s.spawnRate -= 50;
         }, s.spawnRate);
     },
 
@@ -191,14 +217,15 @@ NumPlay.register({
                 '<div class="nm-stat"><div class="nm-stat-val" style="color:#6366f1" id="NC_best">0</div><div class="nm-stat-lbl">TERBAIK</div></div>' +
             '</div>' +
             '<div class="fb-card" id="NC_feedback" style="font-size:13px;font-weight:700;margin-bottom:10px;padding:12px"><b>Klik angka yang sama dan berdampingan</b> untuk hapus. Minimal 2!</div>' +
-            '<div id="NC_how" style="background:#ecfdf5;border:1.5px solid #a7f3d0;border-radius:12px;padding:12px;margin-bottom:12px;font-size:12px;color:#065f46;line-height:1.6">' +
+            '<div id="NC_how" style="background:#ecfdf5;border:1.5px solid #a7f3d0;border-radius:12px;padding:12px;margin-bottom:12px;font-size:12px;color:#065f46;line-height:1.7">' +
                 '<b>Cara Main:</b><br>' +
-                '\u2022 Angka 1-4 muncul dari atas ke bawah<br>' +
-                '\u2022 <b>Klik angka</b> yang sama dan <b>berdampingan</b> (atas/bawah/kiri/kanan)<br>' +
+                '\u2022 Angka 1-4 muncul dari <b>bawah</b>, naik ke atas<br>' +
+                '\u2022 <b>Klik</b> angka yang <b>sama</b> dan <b>berdampingan</b> (atas/bawah/kiri/kanan)<br>' +
                 '\u2022 Minimal <b>2 angka</b> terhubung baru bisa hapus<br>' +
-                '\u2022 Grup besar = poin besar (2=40, 3=90, 4=160)<br>' +
-                '\u2022 Baru terus naik dari atas, makin lama makin cepat<br>' +
-                '\u2022 Grid penuh = game over!' +
+                '\u2022 Setelah hapus, angka di atas <b>jatuh ke bawah</b><br>' +
+                '\u2022 Grup besar = poin besar (2=40, 3=90, 4=160, 5=250)<br>' +
+                '\u2022 Baru naik terus dari bawah, makin lama makin cepat<br>' +
+                '\u2022 Grid penuh = game over' +
             '</div>' +
             '<div id="NC_grid"></div>' +
             '<button class="btn" id="NC_start" onclick="NumPlay.games.clear.start()" style="width:100%;font-size:16px;padding:16px;margin-top:12px;background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 16px rgba(16,185,129,0.3)">Mulai!</button>' +
