@@ -1,10 +1,11 @@
-var CACHE_NAME = 'numplay-v2';
+var CACHE_NAME = 'numplay-v3';
 var urlsToCache = [
     '/',
     '/index.html',
     '/games/guessing.js',
     '/games/numberle.js',
     '/games/detective.js',
+    '/games/mathsprint.js',
     '/manifest.json',
     '/icon-192.png',
     '/icon-512.png'
