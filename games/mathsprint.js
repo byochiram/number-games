@@ -39,6 +39,9 @@ NumPlay.register({
             if (this.bgMusic) {
                 this.bgMusic.pause();
                 this.bgMusic.currentTime = 0;
+                this.bgMusic.src = '';
+                this.bgMusic.load();
+                this.bgMusic = null;
             }
         } catch(e) {}
     },
