@@ -167,6 +167,7 @@ NumPlay.register({
                 '<div class="leg-i"><div class="leg-d" style="background:#94a3b8"></div>Tidak ada</div>' +
             '</div>' +
             '<div class="board" id="N_board"></div>' +
+            NumPlay.vkb('N_hid', 'NumPlay.games.numberle.submit()') +
             '<div class="fb-card" id="N_msg_box"><div class="l1" id="N_msg"></div></div>' +
             '<button class="btn" onclick="NumPlay.games.numberle.reset()" style="width:100%">Mulai Lagi</button>' +
             '</div>';
