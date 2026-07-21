@@ -361,6 +361,7 @@ var NumPlay = {
         this.currentGame = id;
         var old = document.getElementById('N_hid');
         if (old) old.remove();
+        if (this.games.mathsprint && this.games.mathsprint.stopMusic) this.games.mathsprint.stopMusic();
         if (this.games[id]) this.games[id].render();
     },
 
