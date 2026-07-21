@@ -7,163 +7,29 @@ NumPlay.register({
     bg: '#fef2f2',
 
     state: {},
-    audioCtx: null,
-    musicNodes: [],
 
-    initAudio: function() {
-        if (!this.audioCtx) {
-            this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        if (this.audioCtx.state === 'suspended') {
-            this.audioCtx.resume();
-        }
-    },
-
-    playBeat: function() {
-        this.initAudio();
-        var ctx = this.audioCtx;
-        var now = ctx.currentTime;
-        var bpm = 150;
-        var step = 60 / bpm / 2;
-
-        for (var i = 0; i < 32; i++) {
-            var t = now + i * step;
-
-            var kick = ctx.createOscillator();
-            kick.type = 'sine';
-            kick.frequency.setValueAtTime(150, t);
-            kick.frequency.exponentialRampToValueAtTime(30, t + 0.1);
-            var kickGain = ctx.createGain();
-            kickGain.gain.setValueAtTime(0.4, t);
-            kickGain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
-            kick.connect(kickGain);
-            kickGain.connect(ctx.destination);
-            kick.start(t);
-            kick.stop(t + 0.15);
-            this.musicNodes.push(kick);
-
-            if (i % 2 === 1) {
-                var snare = ctx.createOscillator();
-                snare.type = 'sawtooth';
-                snare.frequency.setValueAtTime(200, t);
-                snare.frequency.exponentialRampToValueAtTime(80, t + 0.08);
-                var snareGain = ctx.createGain();
-                snareGain.gain.setValueAtTime(0.15, t);
-                snareGain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
-                snare.connect(snareGain);
-                snareGain.connect(ctx.destination);
-                snare.start(t);
-                snare.stop(t + 0.1);
-                this.musicNodes.push(snare);
-
-                var noise = ctx.createOscillator();
-                noise.type = 'square';
-                noise.frequency.setValueAtTime(800 + Math.random() * 400, t);
-                var noiseGain = ctx.createGain();
-                noiseGain.gain.setValueAtTime(0.06, t);
-                noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
-                noise.connect(noiseGain);
-                noiseGain.connect(ctx.destination);
-                noise.start(t);
-                noise.stop(t + 0.06);
-                this.musicNodes.push(noise);
-            }
-
-            if (i % 4 === 0) {
-                var bass = ctx.createOscillator();
-                bass.type = 'sawtooth';
-                var notes = [55, 65, 73, 82];
-                bass.frequency.setValueAtTime(notes[Math.floor(i / 4) % 4], t);
-                var bassGain = ctx.createGain();
-                bassGain.gain.setValueAtTime(0.12, t);
-                bassGain.gain.exponentialRampToValueAtTime(0.001, t + step * 2);
-                var bassFilter = ctx.createBiquadFilter();
-                bassFilter.type = 'lowpass';
-                bassFilter.frequency.setValueAtTime(300, t);
-                bass.connect(bassFilter);
-                bassFilter.connect(bassGain);
-                bassGain.connect(ctx.destination);
-                bass.start(t);
-                bass.stop(t + step * 2);
-                this.musicNodes.push(bass);
-            }
-
-            var hi = ctx.createOscillator();
-            hi.type = 'square';
-            hi.frequency.setValueAtTime(6000 + (i % 4) * 200, t);
-            var hiGain = ctx.createGain();
-            hiGain.gain.setValueAtTime(0.02, t);
-            hiGain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
-            hi.connect(hiGain);
-            hiGain.connect(ctx.destination);
-            hi.start(t);
-            hi.stop(t + 0.03);
-            this.musicNodes.push(hi);
-        }
-    },
-
-    playCorrect: function() {
-        this.initAudio();
-        var ctx = this.audioCtx;
-        var now = ctx.currentTime;
-        var osc = ctx.createOscillator();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, now);
-        osc.frequency.setValueAtTime(1100, now + 0.05);
-        var gain = ctx.createGain();
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.15);
-    },
-
-    playWrong: function() {
-        this.initAudio();
-        var ctx = this.audioCtx;
-        var now = ctx.currentTime;
-        var osc = ctx.createOscillator();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(200, now);
-        osc.frequency.setValueAtTime(150, now + 0.1);
-        var gain = ctx.createGain();
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.2);
-    },
-
-    playEnd: function() {
-        this.initAudio();
-        var ctx = this.audioCtx;
-        var now = ctx.currentTime;
-        var notes = [440, 550, 660, 880];
-        for (var i = 0; i < notes.length; i++) {
+    beep: function(freq, dur, vol) {
+        try {
+            var ctx = new (window.AudioContext || window.webkitAudioContext)();
             var osc = ctx.createOscillator();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(notes[i], now + i * 0.12);
             var gain = ctx.createGain();
-            gain.gain.setValueAtTime(0.12, now + i * 0.12);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.3);
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.value = vol || 0.1;
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
             osc.connect(gain);
             gain.connect(ctx.destination);
-            osc.start(now + i * 0.12);
-            osc.stop(now + i * 0.12 + 0.3);
-        }
+            osc.start();
+            osc.stop(ctx.currentTime + dur);
+        } catch(e) {}
     },
 
-    stopMusic: function() {
-        for (var i = 0; i < this.musicNodes.length; i++) {
-            try { this.musicNodes[i].stop(); } catch(e) {}
-        }
-        this.musicNodes = [];
-    },
+    playCorrect: function() { this.beep(660, 0.12, 0.08); },
+    playWrong: function() { this.beep(220, 0.2, 0.08); },
+    playEnd: function() { this.beep(440, 0.3, 0.08); },
+    playTick: function() { this.beep(800, 0.05, 0.04); },
 
     reset: function() {
-        this.stopMusic();
         var s = this.state;
         s.score = 0;
         s.streak = 0;
@@ -172,7 +38,6 @@ NumPlay.register({
         s.active = false;
         s.timer = null;
         s.current = null;
-        s.musicTimer = null;
         NumPlay.el('MS_score').textContent = '0';
         NumPlay.el('MS_streak').textContent = '0';
         NumPlay.el('MS_best').textContent = s.best;
@@ -229,7 +94,7 @@ NumPlay.register({
 
         var html = '';
         for (var i = 0; i < s.current.options.length; i++) {
-            html += '<button class="vkb-key wide" style="width:72px;height:52px;font-size:18px;margin:3px" onclick="NumPlay.games.mathsprint.answer(' + s.current.options[i] + ')">' + s.current.options[i] + '</button>';
+            html += '<button class="ms-opt" onclick="NumPlay.games.mathsprint.answer(' + s.current.options[i] + ')">' + s.current.options[i] + '</button>';
         }
         NumPlay.el('MS_options').innerHTML = html;
     },
@@ -275,21 +140,21 @@ NumPlay.register({
         NumPlay.el('MS_feedback').textContent = 'Jawab secepat mungkin!';
         NumPlay.el('MS_feedback').className = 'fb-card';
 
-        this.playBeat();
-        var self = this;
-        s.musicTimer = setInterval(function() { self.playBeat(); }, 1500);
         this.showProblem();
 
+        var self = this;
         s.timer = setInterval(function() {
             s.timeLeft--;
             NumPlay.el('MS_time').textContent = s.timeLeft;
-            if (s.timeLeft <= 5) NumPlay.el('MS_time').style.color = '#dc2626';
-            else if (s.timeLeft <= 10) NumPlay.el('MS_time').style.color = '#f59e0b';
+            if (s.timeLeft <= 5) {
+                NumPlay.el('MS_time').style.color = '#dc2626';
+                self.playTick();
+            } else if (s.timeLeft <= 10) {
+                NumPlay.el('MS_time').style.color = '#f59e0b';
+            }
 
             if (s.timeLeft <= 0) {
                 clearInterval(s.timer);
-                clearInterval(s.musicTimer);
-                self.stopMusic();
                 self.playEnd();
                 s.active = false;
                 if (s.score > s.best) s.best = s.score;
@@ -310,7 +175,7 @@ NumPlay.register({
         NumPlay.el('app').innerHTML =
             '<div class="card">' +
             NumPlay.topBar(this.name, 'Jawab operasi matematika secepat mungkin!') +
-            '<div style="display:flex;justify-content:center;gap:24px;margin-bottom:16px">' +
+            '<div style="display:flex;justify-content:center;gap:28px;margin-bottom:16px">' +
                 '<div style="text-align:center"><div style="font-size:42px;font-weight:800;color:#ef4444" id="MS_time">30</div><div style="font-size:10px;color:#94a3b8;font-weight:700">DETIK</div></div>' +
                 '<div style="text-align:center"><div style="font-size:42px;font-weight:800;color:#6366f1" id="MS_score">0</div><div style="font-size:10px;color:#94a3b8;font-weight:700">POIN</div></div>' +
             '</div>' +
@@ -320,7 +185,7 @@ NumPlay.register({
             '</div>' +
             '<div class="fb-card" id="MS_feedback" style="font-size:15px;font-weight:700">Tekan Mulai!</div>' +
             '<div style="text-align:center;font-size:36px;font-weight:800;margin:18px 0;min-height:52px" id="MS_question">?</div>' +
-            '<div id="MS_options" style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:18px"></div>' +
+            '<div id="MS_options" class="ms-grid"></div>' +
             '<button class="btn" id="MS_start" onclick="NumPlay.games.mathsprint.start()" style="width:100%;font-size:16px;padding:16px">Mulai!</button>' +
             '</div>';
 
