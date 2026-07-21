@@ -69,6 +69,12 @@
         .menu-card.g3:hover { border-color: #3b82f6; }
         .menu-card.g4:hover { border-color: #ef4444; }
         .menu-card.g5:hover { border-color: #8b5cf6; }
+
+        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 0; }
+        @media (min-width: 561px) {
+            .menu-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+            .menu-card { margin-bottom: 0; }
+        }
         .mc-badge {
             width: 52px; height: 52px; border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
@@ -403,7 +409,8 @@ var NumPlay = {
             '<div class="logo-icon">\ud83c\udfb2</div>' +
             '<div class="logo-title"><span>Number Games</span></div>' +
             '<div class="logo-sub">Tebak, cocokkan, pecahkan</div>' +
-            '</div>';
+            '</div>' +
+            '<div class="menu-grid">';
 
         for (var id in this.games) {
             var g = this.games[id];
@@ -412,7 +419,7 @@ var NumPlay = {
                 '<div class="mc-body"><div class="mc-title">' + g.name + '</div><div class="mc-desc">' + g.desc + '</div></div>' +
                 '<div class="mc-arrow">\u203a</div></div>';
         }
-        html += '</div>';
+        html += '</div></div>';
         this.el('app').innerHTML = html;
 
         var self = this;

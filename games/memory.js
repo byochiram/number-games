@@ -36,10 +36,10 @@ NumPlay.register({
 
     getShowTime: function() {
         var s = this.state;
-        if (s.level <= 3) return 3000;
-        if (s.level <= 6) return 4000;
-        if (s.level <= 10) return 5000;
-        return 6000;
+        if (s.level <= 3) return 2000;
+        if (s.level <= 6) return 2500;
+        if (s.level <= 10) return 3000;
+        return 3500;
     },
 
     start: function() {
@@ -66,16 +66,26 @@ NumPlay.register({
 
     buildInput: function() {
         var s = this.state;
-        var html = '<div class="vkb" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:280px;margin:0 auto">';
-        for (var i = 0; i <= 9; i++) {
-            html += '<button class="vkb-key" style="height:48px;font-size:18px" onclick="NumPlay.games.memory.press(' + i + ')">' + i + '</button>';
+        var isMobile = window.innerWidth <= 560;
+        if (isMobile) {
+            var html = '<div class="vkb" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:280px;margin:0 auto">';
+            for (var i = 0; i <= 9; i++) {
+                html += '<button class="vkb-key" style="height:48px;font-size:18px" onclick="NumPlay.games.memory.press(' + i + ')">' + i + '</button>';
+            }
+            html += '</div>';
+            html += '<div style="text-align:center;margin-top:10px">';
+            html += '<button class="vkb-key del" style="display:inline-flex;width:auto;padding:0 24px;height:44px;font-size:14px;margin:4px" onclick="NumPlay.games.memory.del()">X</button>';
+            html += '<button class="vkb-key action" style="display:inline-flex;width:auto;padding:0 24px;height:44px;font-size:14px;margin:4px" onclick="NumPlay.games.memory.check()">OK</button>';
+            html += '</div>';
+            NumPlay.el('NM_input').innerHTML = html;
+        } else {
+            NumPlay.el('NM_input').innerHTML =
+                '<div class="input-bar">' +
+                '<input type="text" inputmode="numeric" pattern="[0-9]*" class="field center" id="NM_field" placeholder="Ketik angka..." onkeypress="if(event.key===\'Enter\')NumPlay.games.memory.check()">' +
+                '<button class="btn" onclick="NumPlay.games.memory.check()">OK</button>' +
+                '</div>';
+            setTimeout(function() { var f = document.getElementById('NM_field'); if(f) f.focus(); }, 100);
         }
-        html += '</div>';
-        html += '<div style="text-align:center;margin-top:10px">';
-        html += '<button class="vkb-key del" style="display:inline-flex;width:auto;padding:0 24px;height:44px;font-size:14px;margin:4px" onclick="NumPlay.games.memory.del()">X</button>';
-        html += '<button class="vkb-key action" style="display:inline-flex;width:auto;padding:0 24px;height:44px;font-size:14px;margin:4px" onclick="NumPlay.games.memory.check()">OK</button>';
-        html += '</div>';
-        NumPlay.el('NM_input').innerHTML = html;
     },
 
     press: function(d) {
@@ -88,6 +98,8 @@ NumPlay.register({
         disp.textContent = cur;
         disp.style.color = '#6366f1';
         this.playSound('click.wav');
+        var field = document.getElementById('NM_field');
+        if (field) field.value = cur;
     },
 
     del: function() {
@@ -99,13 +111,16 @@ NumPlay.register({
         cur = cur.slice(0, -1);
         disp.textContent = cur.length === 0 ? '?'.repeat(s.sequence.length) : cur;
         if (cur.length === 0) disp.style.color = '#cbd5e1';
+        var field = document.getElementById('NM_field');
+        if (field) field.value = cur;
     },
 
     check: function() {
         var s = this.state;
         if (s.phase !== 'input') return;
         var disp = NumPlay.el('NM_display');
-        var cur = disp.textContent;
+        var field = document.getElementById('NM_field');
+        var cur = field ? field.value : disp.textContent;
         if (cur === '?'.repeat(s.sequence.length) || cur.length < s.sequence.length) return;
 
         if (cur === s.sequence) {
